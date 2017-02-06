@@ -1,0 +1,14 @@
+variable declaration
+prototype
+expression
+initialization
+parameter type
+function call
+argument
+return type
+operator
+increment
+
+Identify, circle, and label
+ONE example of each of the
+terms above in 4a-mystery.cpp
