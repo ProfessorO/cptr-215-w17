@@ -1,6 +1,6 @@
 int main()
 {
-	double total = 0.0;
+	double total; // bad if it's missing = 0.0;
 
 	for (int i = 0; i < 5; i++)
 	{
