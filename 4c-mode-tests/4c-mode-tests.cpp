@@ -3,7 +3,7 @@
     2017-02-01: first draft
     2017-02-03: started working on implementing computeMode
     2017-02-06: keep working on mode
-    2017-02-08: add tests & finish mode calculation
+    2017-02-08: split tallyFrequencies from computeMode, start writing unit tests
 */
 
 #include <iostream>
