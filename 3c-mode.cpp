@@ -10,6 +10,7 @@ using namespace std;
 vector<double> getNumbers();	// function prototype (or declaration)
 void showNumbers(vector<double> numbers);
 vector<double> computeMode(vector<double> numbers);
+void tallyFrequencies(vector<double> numbers, vector<double> unique, vector<int> tally);
 int vectorFind(double num, vector<double> data);
 
 int main()
@@ -53,6 +54,13 @@ vector<double> computeMode(vector<double> numbers)
 	vector<double> unique;
 	vector<int> tally;
 	// tally up frequencies
+	tallyFrequencies(numbers, unique, tally);
+	// find highest frequency
+	// find all numbers corresponding to that highest frequency
+}
+
+void tallyFrequencies(vector<double> numbers, vector<double> unique, vector<int> tally)
+{
 	for (vector<double>::size_type i = 0; i < numbers.size(); i++)
 	{
 		int position = vectorFind(numbers.at(i), unique);
@@ -66,8 +74,6 @@ vector<double> computeMode(vector<double> numbers)
 			tally.at(position)++;
 		}
 	}
-	// find highest frequency
-	// find all numbers corresponding to that highest frequency
 }
 
 int vectorFind(double num, vector<double> data)
