@@ -10,6 +10,9 @@
 #include <vector>
 using namespace std;
 
+#define DOCTEST_CONFIG_IMPLEMENT
+#include "doctest.h"
+
 vector<double> getNumbers();	// function prototype (or declaration)
 void showNumbers(vector<double> numbers);
 vector<double> computeMode(vector<double> numbers);
@@ -18,19 +21,19 @@ int vectorFind(double num, vector<double> data);
 
 int main()
 {
+    int result = (new doctest::Context())->run();
+
     // get numbers from user
     vector<double> numbers = getNumbers();
-
     // compute mode
     vector<double> mode = computeMode(numbers);
-
     // output mode
     cout << "The mode of ";
     showNumbers(numbers);
     cout << "is ";
     showNumbers(mode);
 
-    return 0;
+    return result;
 }
 
 // function definition
@@ -84,8 +87,12 @@ void tallyFrequencies(vector<double> numbers,
     showNumbers(unique);
 }
 
+// Left half of the room: write a test case for tallyFrequencies
+
 int vectorFind(double num, vector<double> data)
 {
     // TODO: finish function stub
     return -1;
 }
+
+// Right half of the room: write a test case for vectorFind
