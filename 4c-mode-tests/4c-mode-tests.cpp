@@ -88,6 +88,14 @@ void tallyFrequencies(vector<double> numbers,
 }
 
 // Left half of the room: write a test case for tallyFrequencies
+TEST_CASE("tallyFrequencies")
+{
+    vector<double> unique;
+    vector<int> freq;
+    tallyFrequencies({ 1, 2, 3, 4, 5 }, unique, freq);
+    CHECK(unique == vector<double>({ 1, 2, 3, 4, 5 }) );
+    CHECK(freq   == vector<int>   ({ 1, 1, 1, 1, 1 }));
+}
 
 int vectorFind(double num, vector<double> data)
 {
@@ -96,3 +104,10 @@ int vectorFind(double num, vector<double> data)
 }
 
 // Right half of the room: write a test case for vectorFind
+TEST_CASE("vectorFind")
+{
+    vector<double> data = { 9, 4, 10, 3, 2, 3, 6, 8, 9, 7 };
+    CHECK(vectorFind(10, { 1, 2, 3, 4, 5 }) == -1);
+    CHECK(vectorFind(10, data) == 2);
+    CHECK(vectorFind(3, data) == 3);
+}
