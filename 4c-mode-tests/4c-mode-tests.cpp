@@ -15,9 +15,12 @@ using namespace std;
 
 vector<double> getNumbers();	// function prototype (or declaration)
 void showNumbers(vector<double> numbers);
+void showNumbers(vector<int> numbers);
 vector<double> computeMode(vector<double> numbers);
 void tallyFrequencies(vector<double> numbers, vector<double>& unique, vector<int>& tally);
 int vectorFind(double num, vector<double> data);
+int findMax(vector<int> numbers);
+vector<double> findNumbersMatchingFrequency(int freq, vector<double> unique, vector<int> frequencies);
 
 int main()
 {
@@ -43,6 +46,9 @@ vector<double> getNumbers()		// function header (or signature)
     return { 3, 5, 2.7, 9, 3, 4, 5, 4, 3, 5 };
 }
 
+// C++ templates would be a better way to implement the duplicate functionality
+// in the overloaded function showNumbers below.
+
 void showNumbers(vector<double> numbers)
 {
     cout << "{ ";
@@ -55,16 +61,32 @@ void showNumbers(vector<double> numbers)
     cout << " }" << endl;
 }
 
+void showNumbers(vector<int> numbers)
+{
+    cout << "{ ";
+    for (vector<int>::size_type i = 0; i < numbers.size(); i++)
+    {
+        if (i > 0)
+            cout << ", ";
+        cout << numbers.at(i);
+    }
+    cout << " }" << endl;
+}
+
+
 vector<double> computeMode(vector<double> numbers)
 {
     vector<double> uniqueNumbers;
     vector<int> frequencies;
     // tally up frequencies
     tallyFrequencies(numbers, uniqueNumbers, frequencies); // pass by reference
-    cout << "Unique numbers in computeMode: ";
+    cout << "Results of tallyFrequencies:" << endl;
     showNumbers(uniqueNumbers);
+    showNumbers(frequencies);
     // find highest frequency
+    int maxFrequency = findMax(frequencies);
     // find all numbers corresponding to that highest frequency
+    return findNumbersMatchingFrequency(maxFrequency, uniqueNumbers, frequencies);
 }
 
 void tallyFrequencies(vector<double> numbers,
@@ -83,8 +105,6 @@ void tallyFrequencies(vector<double> numbers,
             tally.at(position)++;
         }
     }
-    cout << "Unique numbers in tallyFrequencies: ";
-    showNumbers(unique);
 }
 
 // Left half of the room: write a test case for tallyFrequencies
@@ -97,9 +117,16 @@ TEST_CASE("tallyFrequencies")
     CHECK(freq   == vector<int>   ({ 1, 1, 1, 1, 1 }));
 }
 
+// returns the index of num in data, or -1 if not found
 int vectorFind(double num, vector<double> data)
 {
-    // TODO: finish function stub
+    for (int i = 0; i < static_cast<int>(data.size()); i++) // for item in data: vs for pos in range(len(data)):
+    {
+        if (data.at(i) == num)
+        {
+            return i;
+        }
+    }
     return -1;
 }
 
@@ -110,4 +137,9 @@ TEST_CASE("vectorFind")
     CHECK(vectorFind(10, { 1, 2, 3, 4, 5 }) == -1);
     CHECK(vectorFind(10, data) == 2);
     CHECK(vectorFind(3, data) == 3);
+}
+
+int findMax(vector<int> numbers)
+{
+
 }
