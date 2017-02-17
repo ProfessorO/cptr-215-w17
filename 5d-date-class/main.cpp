@@ -8,9 +8,10 @@ using namespace std;
 
 class Date
 {
-public:
+private:
     int year, month, day;
     // int daysSinceEpoch; // since January 1, 1970
+public:
     void print()
     {
         cout << year << '-' << month << '-' << day;
