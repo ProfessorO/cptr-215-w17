@@ -1,72 +1,36 @@
 /* Date calculator
  * Robert Ordóñez & CPTR-215
- * 2017-02-20 -
+ * 2017-02-22 - finish dayAfter
+ * 2017-02-22 - split into header, implementation, and use files
+ * 2017-02-20 - added constructors and day of week functionality
  * 2017-02-17 - first draft
  */
 
+// #define DOCTEST_CONFIG_IMPLEMENT
 #include <iostream>
-#include <string>
-#include <vector>
-using namespace std;
-
-class Date
-{
-private:
-    int year, month, day;
-    // int daysSinceEpoch; // since January 1, 1970
-public:
-    Date(int y, int m, int d)
-    {
-        cout << "Constructor called with "
-             << y << ", " << m << ", and " << d << endl;
-        year = y;
-        month = m;
-        day = d;
-    }
-
-    void print()
-    {
-        cout << year << '-' << month << '-' << day;
-    }
-
-    int dayOfWeekNumber()
-    {
-        // Zeller's congruence
-        // https://en.wikipedia.org/wiki/Zeller's_congruence#Implementation_in_software
-        int m = month, y = year;
-        if (month <= 2)
-        {
-            m += 12;
-            y -= 1;
-        }
-        return (day + (13 * (m + 1) / 5) + (y % 100) +
-                ((y % 100) / 4) + ((y / 100) / 4) +
-                (5 * (y / 100))) % 7;
-    }
-
-    string dayOfWeekName()
-    {
-        vector<string> dayNames({"Saturday", "Sunday", "Monday", "Tuesday",
-                                 "Wednesday", "Thursday", "Friday"});
-        return dayNames.at(dayOfWeekNumber());
-    }
-};
+#include "date.h"
 
 int daysBetween(Date date1, Date date2);
 
 int main()
 {
-    Date today(2017, 2, 20);
-    Date epoch(1970, 1, 1);
+    Date today(2017, 12, 31);
+    Date epoch;
 
-    cout << today.dayOfWeekName() << " ";
+    std::cout << today.dayOfWeekName() << " ";
     today.print();
-    cout << endl;
-    cout << epoch.dayOfWeekName() << " ";
+    std::cout << std::endl;
+    std::cout << epoch.dayOfWeekName() << " ";
     epoch.print();
-    cout << endl;
+    std::cout << std::endl;
 
-    cout << "Days between those dates: " << daysBetween(today, epoch) << endl;
+    std::cout << "Days between those dates: " << daysBetween(today, epoch) << std::endl;
+
+    std::cout << "The day after ";
+    today.print();
+    std::cout << " is ";
+    today.dayAfter().print();
+    std::cout << std::endl;
 
 //    cin >> date1 >> date2;
 //    cout << date1 - date2 << endl;
