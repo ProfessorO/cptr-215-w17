@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 #include "date.h"
-#include "date.h"
 //#include "doctest.h"
 
 int Date::daysInMonth() const
@@ -91,16 +90,27 @@ Date Date::dayAfter() const
     return Date(newYear, newMonth, newDay);
 }
 // TODO: Provide stringification function so test cases work
-/*
-TEST_CASE("Date::dayAfter")
-{
-    CHECK(Date(2017, 2, 24).dayAfter() == Date(2017, 2, 25));
-    CHECK(Date(2017, 2, 28).dayAfter() == Date(2017, 3, 1));
-}
-*/
+//TEST_CASE("Date::dayAfter")
+//{
+//    CHECK(Date(2017, 2, 24).dayAfter() == Date(2017, 2, 25));
+//    CHECK(Date(2017, 2, 28).dayAfter() == Date(2017, 3, 1));
+//}
 bool Date::operator==(Date other) const
 {
     return this->year == other.year &&
             this->month == other.month &&
             this->day == other.day;
+}
+
+int Date::operator-(const Date& other) const
+{
+    return  (this->year - other.year) * 365 +
+            (this->month - other.month) * 31 +
+            (this->day - other.day);
+}
+
+std::ostream& operator<<(std::ostream& outputStream, const Date& date)
+{
+//    date.outputTo(outputStream);  // would need member function named outputTo
+    return outputStream << date.year << "-" << date.month << "-" << date.day;
 }

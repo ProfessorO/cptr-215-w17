@@ -22,6 +22,11 @@ public:
     std::string dayOfWeekName() const;
     Date dayAfter() const;
     bool operator==(Date other) const;
+    int operator-(const Date& other) const;
+
+    friend std::ostream& operator<<(std::ostream& outputStream, const Date& date);
 };
+
+std::ostream& operator<<(std::ostream& outputStream, const Date& date);
 
 #endif // DATE_H
