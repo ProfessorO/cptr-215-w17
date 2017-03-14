@@ -90,6 +90,13 @@ Date Date::dayAfter() const
     return Date(newYear, newMonth, newDay);
 }
 
+TEST_CASE("Date::dayAfter")
+{
+    CHECK(Date(2017, 2, 24).dayAfter() == Date(2017, 2, 25));
+    CHECK(Date(2017, 2, 28).dayAfter() == Date(2017, 3, 1));
+    CHECK(Date(2016, 2, 28).dayAfter() == Date(2016, 02, 29));
+}
+
 bool Date::operator==(Date other) const
 {
     return this->year == other.year &&
@@ -110,9 +117,7 @@ std::ostream& operator<<(std::ostream& outputStream, const Date& date)
     return outputStream << date.year << "-" << date.month << "-" << date.day;
 }
 
-TEST_CASE("Date::dayAfter")
+TEST_CASE("Date output")
 {
-    CHECK(Date(2017, 2, 24).dayAfter() == Date(2017, 2, 25));
-    CHECK(Date(2017, 2, 28).dayAfter() == Date(2017, 3, 1));
-    CHECK(Date(2016, 2, 28).dayAfter() == Date(2016, 02, 29));
+
 }
