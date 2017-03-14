@@ -4,9 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    time.cpp \
-    test-time.cpp
+    test-mytime.cpp \
+    mytime.cpp
 
 HEADERS += \
-    time.h \
-    doctest.h
+    doctest.h \
+    mytime.h

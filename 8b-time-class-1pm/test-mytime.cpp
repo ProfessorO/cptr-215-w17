@@ -1,4 +1,5 @@
 #include "doctest.h"
+#include "mytime.h"
 #include <sstream>
 
 TEST_CASE("Time::Time")

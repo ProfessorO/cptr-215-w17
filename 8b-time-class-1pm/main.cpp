@@ -6,6 +6,7 @@
 #include <iostream>
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#include "mytime.h"
 
 using namespace std;
 
