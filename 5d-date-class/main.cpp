@@ -7,14 +7,16 @@
  * 2017-02-17 - first draft
  */
 
-//#define DOCTEST_CONFIG_IMPLEMENT
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <iostream>
 #include "date.h"
+#include "doctest.h"
 
 int daysBetween(Date date1, Date date2);
 
 int main()
 {
+    doctest::Context().run();
     Date today(2017, 12, 31);
     Date epoch;
 

@@ -87,8 +87,8 @@
 
 #define DOCTEST_VERSION_MAJOR 1
 #define DOCTEST_VERSION_MINOR 1
-#define DOCTEST_VERSION_PATCH 3
-#define DOCTEST_VERSION_STR "1.1.3"
+#define DOCTEST_VERSION_PATCH 4
+#define DOCTEST_VERSION_STR "1.1.4"
 
 #define DOCTEST_VERSION                                                                            \
     (DOCTEST_VERSION_MAJOR * 10000 + DOCTEST_VERSION_MINOR * 100 + DOCTEST_VERSION_PATCH)
@@ -182,6 +182,12 @@
 // in MSVC _HAS_EXCEPTIONS is defined in a header instead of as a project define
 // so we can't do the automatic detection for MSVC without including some header
 #endif // DOCTEST_CONFIG_NO_EXCEPTIONS
+
+#ifdef DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#ifndef DOCTEST_CONFIG_NO_EXCEPTIONS
+#define DOCTEST_CONFIG_NO_EXCEPTIONS
+#endif // DOCTEST_CONFIG_NO_EXCEPTIONS
+#endif // DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 
 #if defined(DOCTEST_CONFIG_NO_EXCEPTIONS) && !defined(DOCTEST_CONFIG_NO_TRY_CATCH_IN_ASSERTS)
 #define DOCTEST_CONFIG_NO_TRY_CATCH_IN_ASSERTS
@@ -948,6 +954,7 @@ namespace detail
     void logTestEnd();
 
     void logTestCrashed();
+    void logTestException(const char* what);
 
     void logAssert(bool passed, const char* decomposition, bool threw, const char* expr,
                    assertType::Enum assert_type, const char* file, int line);
@@ -1185,7 +1192,7 @@ public:
 #define DOCTEST_CREATE_AND_REGISTER_FUNCTION(f, name)                                              \
     static void f();                                                                               \
     DOCTEST_REGISTER_FUNCTION(f, name)                                                             \
-    inline void f()
+    static void f()
 
 // for registering tests
 #define DOCTEST_TEST_CASE(name)                                                                    \
@@ -1443,12 +1450,6 @@ public:
 #define DOCTEST_FAST_CHECK_UNARY_FALSE(v) DOCTEST_FAST_UNARY_ASSERT(DT_FAST_CHECK_UNARY_FALSE, v)
 #define DOCTEST_FAST_REQUIRE_UNARY_FALSE(v)                                                        \
     DOCTEST_FAST_UNARY_ASSERT(DT_FAST_REQUIRE_UNARY_FALSE, v)
-
-
-
-// OMGOMGOMG trqbva da napravq teq da sa no-op - a ne prosto da ne gi undef-vam
-
-
 
 #ifdef DOCTEST_CONFIG_NO_EXCEPTIONS
 
@@ -1825,6 +1826,7 @@ DOCTEST_TEST_SUITE_END();
 #include <iomanip>
 #include <vector>
 #include <set>
+#include <stdexcept>
 
 namespace doctest
 {
@@ -1932,6 +1934,7 @@ namespace detail
         bool no_run;         // to not run the tests at all (can be done with an "*" exclude)
         bool no_version;     // to not print the version of the framework
         bool no_colors;      // if output to the console should be colorized
+        bool force_colors;   // forces the use of colors even when a tty cannot be detected
         bool no_path_in_filenames; // if the path to files should be removed from the output
 
         bool help;             // to print the help
@@ -2192,6 +2195,7 @@ extern "C" __declspec(dllimport) int __stdcall IsDebuggerPresent();
 #else
 #include <windows.h>
 #endif
+#include <io.h>
 
 #endif // DOCTEST_CONFIG_COLORS_WINDOWS
 
@@ -2530,31 +2534,35 @@ namespace detail
         if(p->no_colors)
             return;
 #ifdef DOCTEST_CONFIG_COLORS_ANSI
-        if(isatty(STDOUT_FILENO)) {
-            const char* col = "";
-            // clang-format off
-            switch(code) {
-                case Color::Red:         col = "[0;31m"; break;
-                case Color::Green:       col = "[0;32m"; break;
-                case Color::Blue:        col = "[0;34m"; break;
-                case Color::Cyan:        col = "[0;36m"; break;
-                case Color::Yellow:      col = "[0;33m"; break;
-                case Color::Grey:        col = "[1;30m"; break;
-                case Color::LightGrey:   col = "[0;37m"; break;
-                case Color::BrightRed:   col = "[1;31m"; break;
-                case Color::BrightGreen: col = "[1;32m"; break;
-                case Color::BrightWhite: col = "[1;37m"; break;
-                case Color::Bright: // invalid
-                case Color::None:
-                case Color::White:
-                default:                 col = "[0m";
-            }
-            // clang-format on
-            printf("\033%s", col);
+        if(isatty(STDOUT_FILENO) == false && p->force_colors == false)
+            return;
+
+        const char* col = "";
+        // clang-format off
+        switch(code) {
+            case Color::Red:         col = "[0;31m"; break;
+            case Color::Green:       col = "[0;32m"; break;
+            case Color::Blue:        col = "[0;34m"; break;
+            case Color::Cyan:        col = "[0;36m"; break;
+            case Color::Yellow:      col = "[0;33m"; break;
+            case Color::Grey:        col = "[1;30m"; break;
+            case Color::LightGrey:   col = "[0;37m"; break;
+            case Color::BrightRed:   col = "[1;31m"; break;
+            case Color::BrightGreen: col = "[1;32m"; break;
+            case Color::BrightWhite: col = "[1;37m"; break;
+            case Color::Bright: // invalid
+            case Color::None:
+            case Color::White:
+            default:                 col = "[0m";
         }
+        // clang-format on
+        printf("\033%s", col);
 #endif // DOCTEST_CONFIG_COLORS_ANSI
 
 #ifdef DOCTEST_CONFIG_COLORS_WINDOWS
+        if(isatty(fileno(stdout)) == false && p->force_colors == false)
+            return;
+
         static HANDLE stdoutHandle(GetStdHandle(STD_OUTPUT_HANDLE));
         static WORD   originalForegroundAttributes;
         static WORD   originalBackgroundAttributes;
@@ -2605,7 +2613,13 @@ namespace detail
             if(getContextState()->numFailedAssertionsForCurrentTestcase)
                 res = EXIT_FAILURE;
 #ifndef DOCTEST_CONFIG_NO_EXCEPTIONS
-        } catch(const TestFailureException&) { res = EXIT_FAILURE; } catch(...) {
+        } catch(const TestFailureException&) {
+            res = EXIT_FAILURE;
+        } catch(const std::exception& e) {
+            DOCTEST_LOG_START();
+            logTestException(e.what());
+            res = EXIT_FAILURE;
+        } catch(...) {
             DOCTEST_LOG_START();
             logTestCrashed();
             res = EXIT_FAILURE;
@@ -2722,6 +2736,17 @@ namespace detail
         char msg[DOCTEST_SNPRINTF_BUFFER_LENGTH];
 
         DOCTEST_SNPRINTF(msg, DOCTEST_COUNTOF(msg), "TEST CASE FAILED! (threw exception)\n\n");
+
+        DOCTEST_PRINTF_COLORED(msg, Color::Red);
+
+        printToDebugConsole(String(msg));
+    }
+
+    void logTestException(const char* what) {
+        char msg[DOCTEST_SNPRINTF_BUFFER_LENGTH];
+
+        DOCTEST_SNPRINTF(msg, DOCTEST_COUNTOF(msg), "TEST CASE FAILED! (threw exception: %s)\n\n",
+                         what);
 
         DOCTEST_PRINTF_COLORED(msg, Color::Red);
 
@@ -3072,6 +3097,7 @@ namespace detail
         printf(" -nr,  --no-run=<bool>                 skips all runtime doctest operations\n");
         printf(" -nv,  --no-version=<bool>             omit the framework version in the output\n");
         printf(" -nc,  --no-colors=<bool>              disables colors in output\n");
+        printf(" -fc,  --force-colors=<bool>           use colors even when not in a tty\n");
         printf(" -nb,  --no-breaks=<bool>              disables breakpoints in debuggers\n");
         printf(" -npf, --no-path-filenames=<bool>      only filenames and no paths in output\n\n");
         // ==================================================================================== << 79
@@ -3151,6 +3177,7 @@ void Context::parseArgs(int argc, const char* const* argv, bool withDefaults) {
     DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-no-run, dt-nr, no_run, 0);
     DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-no-version, dt-nv, no_version, 0);
     DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-no-colors, dt-nc, no_colors, 0);
+    DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-force-colors, dt-fc, force_colors, 0);
     DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-no-breaks, dt-nb, no_breaks, 0);
     DOCTEST_PARSE_AS_BOOL_OR_FLAG(dt-no-path-filenames, dt-npf, no_path_in_filenames, 0);
 // clang-format on
