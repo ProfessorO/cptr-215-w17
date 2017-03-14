@@ -9,8 +9,9 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int main()
 {
+    doctest::Context().run();
     cout << "Hello World!" << endl;
     return 0;
 }
