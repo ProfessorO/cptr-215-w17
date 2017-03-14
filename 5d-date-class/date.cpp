@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include "date.h"
 #include "doctest.h"
 
@@ -119,5 +120,9 @@ std::ostream& operator<<(std::ostream& outputStream, const Date& date)
 
 TEST_CASE("Date output")
 {
-
+    std::stringstream fakeCout;
+    fakeCout << Date();
+    CHECK(fakeCout.str() == "1970-1-1");
+    fakeCout << std::endl << Date(2017, 03, 14);
+    CHECK(fakeCout.str() == "1970-1-1\n2017-3-14");
 }
