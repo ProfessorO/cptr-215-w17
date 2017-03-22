@@ -19,37 +19,43 @@
 
 #include <iostream>
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
 class BoundedCounter
 {
 public:
-	BoundedCounter();	// 0-9
-	BoundedCounter(int range);	 // like Python's range(n)
-	BoundedCounter(int lowerBound, int upperBound);
+	BoundedCounter(BoundedCounter* neighbor = nullptr);	// 0-9
+	BoundedCounter(int range, BoundedCounter* neighbor = nullptr);	 // like Python's range(n)
+	BoundedCounter(int lowerBound, int upperBound,
+		BoundedCounter* neighbor = nullptr);
 	void reset();
 	void increment();
 	void incrementBy(int amount);
 	int getValue() const;
 private:
 	int lowerBound, upperBound, currentValue;
+	BoundedCounter* neighbor;
 };
 
-BoundedCounter::BoundedCounter() :
-	lowerBound(0), upperBound(9), currentValue(0)
+BoundedCounter::BoundedCounter(BoundedCounter* neighbor) :
+	lowerBound(0), upperBound(9),
+	currentValue(0), neighbor(neighbor)
 {
 }
 
-BoundedCounter::BoundedCounter(int range) :
-	lowerBound(0), upperBound(range - 1), currentValue(0)
+BoundedCounter::BoundedCounter(int range,
+	BoundedCounter* neighbor) :
+	lowerBound(0), upperBound(range - 1),
+	currentValue(0), neighbor(neighbor)
 {
 }
 
-BoundedCounter::BoundedCounter(int lowerBound, int upperBound) :
-	lowerBound(lowerBound), upperBound(upperBound), currentValue(lowerBound)
+BoundedCounter::BoundedCounter(int lowerBound, int upperBound,
+	BoundedCounter* neighbor) :
+	lowerBound(lowerBound), upperBound(upperBound),
+	currentValue(lowerBound), neighbor(neighbor)
 {
-		this->lowerBound = lowerBound;
 }
 
 void BoundedCounter::reset()
@@ -63,7 +69,7 @@ void BoundedCounter::increment()
 	if (this->currentValue > this->upperBound)
 	{
 		this->currentValue = this->lowerBound;	// could do this->reset() instead
-		// TODO: increment neighbor
+		this->neighbor->increment();	// TODO: fix segmentation fault
 	}
 }
 
@@ -117,7 +123,16 @@ TEST_CASE("BoundedCounter::BoundedCounter")
 	CHECK(minutes.getValue() == 2);
 }
 
-// int main()
-// {
-// 	return doctest::Context().run();
-// }
+int main()
+{
+	BoundedCounter hours(1, 12);
+	BoundedCounter minutes(60, &hours);
+
+	minutes.increment();
+	minutes.incrementBy(60);
+
+	std::cout << hours.getValue() << ":" << minutes.getValue() << std::endl;
+
+	return doctest::Context().run();
+}
+
