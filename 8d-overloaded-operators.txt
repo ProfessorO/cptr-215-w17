@@ -1,0 +1,21 @@
+SomeClass a;
+SomeOtherClass b;
+
+a += b; // will be re-written by the compiler (internally) as one of:
+// a.operator+=(b)	// member function
+// operator+=(a, b)	// non-member function
+
+class SomeClass
+{
+// ...
+public:
+	SomeClass operator+=(const SomeOtherClass& other)	// prototype for call in line 5 above
+// ...
+}
+
+SomeClass operator+=(SomeClass& a, const SomeOtherClass& b)	// prototype for call in line 6 above
+
+int x, y, z = 7;
+x = y = z; // really means x = (y = z);
+
+x = 1 + 2;
