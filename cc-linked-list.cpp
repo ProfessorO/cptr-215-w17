@@ -4,6 +4,8 @@
 	2017-04-12	first draft
 	2017-04-17	extracted cc-inventory.cpp
 	2017-04-19	print -> pure virtual, LL -> ABC, prepend _ to data member names
+	2017-04-21	add length, at, and contains to LL
+	2017-04-23	add append (not quite working)
 
 	A LinkedList is either:
 	- an EmptyList, or
@@ -22,6 +24,7 @@ public:
 	virtual int length() const = 0;
 	virtual string at(int position) const = 0;
 	virtual bool contains(string searchString) const = 0;
+	virtual LinkedList* append(string newItem) const = 0;
 };
 
 class EmptyList : public LinkedList
@@ -43,6 +46,10 @@ public:
 	virtual bool contains(string searchString) const
 	{
 		return false;
+	}
+	virtual LinkedList* append(string newItem) const
+	{
+		return new ListNode(newItem, this);
 	}
 };
 
@@ -82,6 +89,11 @@ public:
 		else
 			return _next->contains(searchString);
 	}
+	virtual LinkedList* append(string newItem) const
+	{
+		return new ListNode(_data, _next->append(newItem));
+	}
+
 };
 
 int main()
@@ -102,5 +114,9 @@ int main()
 	cout << boolalpha;
 	cout << "Contains 'ten': " << list->contains("ten") << endl;
 	cout << "Contains 'one': " << list->contains("one") << endl;
+
+//	list->append("twenty");	// like vector::push_back
+	list = list->append("twenty");
+	list->print();
 }
 
