@@ -5,7 +5,8 @@
 	2017-04-17	extracted cc-inventory.cpp
 	2017-04-19	print -> pure virtual, LL -> ABC, prepend _ to data member names
 	2017-04-21	add length, at, and contains to LL
-	2017-04-23	add append (not quite working)
+	2017-04-24	add append (not quite working)
+	2017-04-26	finish append (and trace through it)
 
 	A LinkedList is either:
 	- an EmptyList, or
@@ -27,39 +28,13 @@ public:
 	virtual LinkedList* append(string newItem) const = 0;
 };
 
-class EmptyList : public LinkedList
-{
-public:
-	virtual void print() const
-	{
-		cout << "(END)" << endl;
-	}
-	virtual int length() const
-	{
-		return 0;
-	}
-	virtual string at(int position) const
-	{
-		return "List index " + to_string(position) +
-			" out of range";
-	}
-	virtual bool contains(string searchString) const
-	{
-		return false;
-	}
-	virtual LinkedList* append(string newItem) const
-	{
-		return new ListNode(newItem, this);
-	}
-};
-
 class ListNode : public LinkedList
 {
 protected:
 	string _data;
-	LinkedList* _next;
+	const LinkedList* _next;
 public:
-	ListNode(string data, LinkedList* next):
+	ListNode(string data, const LinkedList* next):
 		_data(data), _next(next)
 	{ }
 	virtual void print() const
@@ -96,6 +71,32 @@ public:
 
 };
 
+class EmptyList : public LinkedList
+{
+public:
+	virtual void print() const
+	{
+		cout << "(END)" << endl;
+	}
+	virtual int length() const
+	{
+		return 0;
+	}
+	virtual string at(int position) const
+	{
+		return "List index " + to_string(position) +
+			" out of range";
+	}
+	virtual bool contains(string searchString) const
+	{
+		return false;
+	}
+	virtual LinkedList* append(string newItem) const
+	{
+		return new ListNode(newItem, this);
+	}
+};
+
 int main()
 {
 	LinkedList* end = new EmptyList();
@@ -115,8 +116,10 @@ int main()
 	cout << "Contains 'ten': " << list->contains("ten") << endl;
 	cout << "Contains 'one': " << list->contains("one") << endl;
 
+	LinkedList* oldList = list;
 //	list->append("twenty");	// like vector::push_back
 	list = list->append("twenty");
 	list->print();
+	oldList->print();
 }
 
